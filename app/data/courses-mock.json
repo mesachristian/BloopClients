@@ -1,0 +1,58 @@
+{
+    "courses": {
+        "price-action-academy": {
+            "id": "price-action-academy",
+            "title": "Bienvenido a Price Action Academy",
+            "instructor": "Felipe Lopez",
+            "progress": {
+                "completed": 16,
+                "total": 34,
+                "percentage": 47
+            },
+            "sections": [
+                {
+                    "id": "preparacion",
+                    "title": "Preparación",
+                    "lessons": [
+                        {
+                            "id": "cultivando-disciplina-1",
+                            "number": 2,
+                            "title": "Cultivando tu Disciplina",
+                            "description": "\"Cultivando tu Disciplina\" es un curso de finanzas y trading diseñado para fortalecer tu mentalidad y mejorar tu toma de decisiones. Aprenderás a gestionar riesgos, controlar emociones y operar con disciplina para lograr consistencia en el tiempo.",
+                            "duration": "2 horas",
+                            "instructor": "Felipe Lopez",
+                            "status": "completed",
+                            "thumbnail": "gradient-1"
+                        },
+                        {
+                            "id": "cultivando-disciplina-2",
+                            "number": 2,
+                            "title": "Cultivando tu Disciplina",
+                            "description": "\"Cultivando tu Disciplina\" es un curso de finanzas y trading diseñado para fortalecer tu mentalidad y mejorar tu toma de decisiones. Aprenderás a gestionar riesgos, controlar emociones y operar con disciplina para lograr consistencia en el tiempo.",
+                            "duration": "2 horas",
+                            "instructor": "Felipe Lopez",
+                            "status": "completed",
+                            "thumbnail": "gradient-2"
+                        }
+                    ]
+                },
+                {
+                    "id": "introduccion",
+                    "title": "Introducción",
+                    "lessons": [
+                        {
+                            "id": "cultivando-disciplina-3",
+                            "number": 2,
+                            "title": "Cultivando tu Disciplina",
+                            "description": "\"Cultivando tu Disciplina\" es un curso de finanzas y trading diseñado para fortalecer tu mentalidad y mejorar tu toma de decisiones. Aprenderás a gestionar riesgos, controlar emociones y operar con disciplina para lograr consistencia en el tiempo.",
+                            "duration": "2 horas",
+                            "instructor": "Felipe Lopez",
+                            "status": "pending",
+                            "thumbnail": "gradient-3"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
