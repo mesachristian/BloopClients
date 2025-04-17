@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Link, Outlet } from "@remix-run/react";
+import { Link, Outlet, useNavigate } from "@remix-run/react";
 import { ArrowLeft, Bell, LogOut, Settings, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -16,11 +16,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 }
 
 export default function App() {
+
+    const navigate = useNavigate();
+
     return (
         <main className="h-screen flex flex-col">
             {/* Header */}
             <header className="fixed z-30 top-0 left-0 w-screen h-[70px] bg-white flex items-center justify-between p-4 border-b">
-                <Button variant="ghost" size="sm" className="text-indigo-600">
+                <Button variant="ghost" size="sm" className="text-indigo-600" onClick={() => navigate(-1)}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
                 </Button>
@@ -40,7 +43,7 @@ export default function App() {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer">
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/app/profile/me")}>
                                 <User className="mr-2 h-4 w-4" />
                                 Profile
                             </DropdownMenuItem>

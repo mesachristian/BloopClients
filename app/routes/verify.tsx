@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
+import { Form, useLoaderData, useNavigation } from "@remix-run/react";
 import { ArrowLeft } from "lucide-react";
 import { useRef, useState } from "react";
 import invariant from "tiny-invariant";
@@ -84,7 +84,7 @@ export default function VerifyPage() {
             const newOtpValues = [...otpValues]
 
             for (let i = 0; i < pastedData.length; i++) {
-                if (i < 6) {
+                if (i < 7) {
                     newOtpValues[i] = pastedData[i]
                 }
             }

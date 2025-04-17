@@ -10,7 +10,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const session = await getSession(request.headers.get('cookie'));
     const user = session.get('user');
 
-    if (user) throw redirect('/app');
+    if (user) throw redirect('/app/courses/price-action-academy');
 
     return null;
 }

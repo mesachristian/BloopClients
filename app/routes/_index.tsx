@@ -8,7 +8,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = () => {
-  return redirect('/app');
+  throw redirect('/app/courses/price-action-academy');
 }
 
 export default function Index() {
