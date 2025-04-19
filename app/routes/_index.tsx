@@ -1,14 +1,8 @@
-import { redirect, type MetaFunction } from "@remix-run/node";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
+import { redirect } from "@remix-run/node";
+import { ALAN_COURSE_ID } from "~/api/config";
 
 export const loader = () => {
-  throw redirect('/app/courses/price-action-academy');
+  throw redirect(`/app/courses/${ALAN_COURSE_ID}`);
 }
 
 export default function Index() {
@@ -16,4 +10,3 @@ export default function Index() {
     <h1>NO CONTENT</h1>  
   );
 }
-

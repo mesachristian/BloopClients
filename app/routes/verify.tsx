@@ -3,6 +3,7 @@ import { Form, useLoaderData, useNavigation } from "@remix-run/react";
 import { ArrowLeft } from "lucide-react";
 import { useRef, useState } from "react";
 import invariant from "tiny-invariant";
+import { ALAN_COURSE_ID } from "~/api/config";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -37,7 +38,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     let session = await getSession(request.headers.get("cookie"));
     session.set("user", user);
 
-    throw redirect("/app", {
+    throw redirect(`/app/courses/${ALAN_COURSE_ID}`, {
         headers: { "Set-Cookie": await commitSession(session) },
     });
 }

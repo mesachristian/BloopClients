@@ -28,7 +28,8 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
     let profileData = (await fetchWithAuth(`${API_BASE_URL}/users/me`, request)) as ProfileData;
     return profileData;
   } catch (error) {
-    throw redirect("/logout");
+    console.log(error);
+    return redirect("/logout");
   }
 };
 

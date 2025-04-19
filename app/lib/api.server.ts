@@ -1,3 +1,4 @@
+import UnauthorizedError from "~/utils/unauthorized-error";
 import { getSession } from "./session.server";
 
 type RequestInit = Parameters<typeof fetch>[1];
@@ -29,7 +30,7 @@ export async function fetchWithAuth<T>(url: string, request: Request, options: R
 
     if(response.status === 401){
         // TODO: Implement refresh token. Currently using 1hour sessions
-        throw new Error("Token expired");
+        throw new UnauthorizedError();
     }
 
     if(!response.ok){

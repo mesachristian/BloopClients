@@ -1,5 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, redirect } from "@remix-run/react";
+import { ALAN_COURSE_ID } from "~/api/config";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -10,7 +11,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const session = await getSession(request.headers.get('cookie'));
     const user = session.get('user');
 
-    if (user) throw redirect('/app/courses/price-action-academy');
+    if (user) throw redirect(`/app/courses/${ALAN_COURSE_ID}`);
 
     return null;
 }
