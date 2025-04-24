@@ -31,6 +31,7 @@ export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script src="https://embed.cloudflarestream.com/embed/sdk.latest.js"></script>
       </head>
       <body>
         {children}
