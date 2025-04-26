@@ -1,5 +1,7 @@
+import { API_BASE_URL } from "~/api/config";
+
 export async function verifyEmail(email: string) {
-    const response = await fetch("http://localhost:5000/users/verify-email", {
+    const response = await fetch(`${API_BASE_URL}/users/verify-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -14,7 +16,7 @@ export async function verifyEmail(email: string) {
 }
 
 export async function createVerificationCode(email: string){
-    const response = await fetch("http://localhost:5000/auth/verification-code", {
+    const response = await fetch(`${API_BASE_URL}/auth/verification-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -26,7 +28,7 @@ export async function createVerificationCode(email: string){
 }
 
 export async function verifyCode(email: string, code: string){
-    const response = await fetch("http://localhost:5000/auth/verify-code", {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code }),
