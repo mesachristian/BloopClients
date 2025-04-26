@@ -1,3 +1,25 @@
+# POST MAN ENDPOINTS FOR COURSE CREATION AND REVIEW
+
+POST: {{bloopBaseUrl}}/courses
+
+POST: {{bloopBaseUrl}}/courses/01967432-f1d0-7b29-b4a0-526f60856e56/update-modules
+
+GET: /courses
+
+GET: /courses/${id}
+
+GET: /users
+
+GET: /user
+
+## THIS ONES MUST BE ENABLED AFTER ALAN UPDATES COURSE INFO
+
+POST: {{bloopBaseUrl}}/users ======== > creates basic user
+
+POST: {{bloopBaseUrl}}/courses/enroll ======> enroll user and course
+
+
+
 # Welcome to Remix!
 
 - 📖 [Remix docs](https://remix.run/docs)
