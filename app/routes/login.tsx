@@ -28,7 +28,7 @@ export default function LoginPage(){
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 px-4 py-12">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold tracking-tight">Sign in {ALAN_COURSE_ID}</CardTitle>
+                    <CardTitle className="text-2xl font-bold tracking-tight">Sign in</CardTitle>
                     <CardDescription>Enter your email to receive a verification code</CardDescription>
                 </CardHeader>
                 <CardContent>

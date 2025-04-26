@@ -1,4 +1,5 @@
 import { createCookieSessionStorage } from "@remix-run/node";
+import { COOKIE_SECRET } from "~/api/config";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -6,7 +7,7 @@ export const sessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     path: "/",
     httpOnly: true,
-    secrets: ["NOT_A_STRONG_SECRET"],
+    secrets: [COOKIE_SECRET],
     secure: process.env.NODE_ENV === "production",
   },
 });
