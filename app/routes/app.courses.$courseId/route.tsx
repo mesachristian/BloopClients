@@ -46,9 +46,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     try {
         const courseData = (await fetchWithAuth(`${API_BASE_URL}/courses/user/${courseId}`, request)) as CourseData;
 
-        if (!courseData) throw new Error("Course not found");
-
-        console.log(courseData.modules[0].lessons[0])
+        if (!courseData) throw new Error("Course not found"); 
 
         return { courseData };
     } catch (error: unknown) {
