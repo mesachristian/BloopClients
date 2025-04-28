@@ -1,20 +1,5 @@
 import { API_BASE_URL } from "~/api/config";
 
-export async function verifyEmail(email: string) {
-    const response = await fetch(`${API_BASE_URL}/users/verify-email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-    });
-
-    if (!response.ok) {
-        throw new Error("Invalid OTP or login error");
-    }
-
-    let data = await response.json();
-    return data;
-}
-
 export async function createVerificationCode(email: string){
     const response = await fetch(`${API_BASE_URL}/auth/verification-code`, {
         method: "POST",

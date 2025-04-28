@@ -1,14 +1,16 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { Check, ChevronDown, ChevronUp, Play } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import invariant from "tiny-invariant";
 import { API_BASE_URL } from "~/api/config";
-import { Button } from "~/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/ui/collapsible";
 import { Progress } from "~/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import CfHlsPlayer from "~/components/ui/video-player";
 import { fetchWithAuth } from "~/lib/api.server";
+import UnauthorizedError from "~/utils/unauthorized-error";
+import pic from "~/assets/foto-alan.png";
 
 interface LessonData {
     lessonId: string;
@@ -46,6 +48,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
         if (!courseData) throw new Error("Course not found");
 
+        console.log(courseData.modules[0].lessons[0])
+
         return { courseData };
     } catch (error: unknown) {
         if (error instanceof UnauthorizedError)
@@ -61,17 +65,9 @@ export default function CoursePage() {
     return (
         <div>
             <div className="mb-6 h-[80vh] rounded-b-3xl object-cover">
-
-                {/*<iframe
-                    title="Course Video"
-                    src={courseData.bannerUrl}
-                    loading="lazy"
-                    className="h-full w-full rounded-b-[2rem] object-cover"
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                    allowFullScreen={false}
-                ></iframe> */}
-
-                <CfHlsPlayer src={"https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/manifest/video.m3u8"} />
+                <CfHlsPlayer
+                    src={"https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/manifest/video.m3u8"}
+                    poster="https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/thumbnails/thumbnail.jpg?time=&height=600" />
             </div>
 
             <main className="max-w-4xl mx-auto p-4">
@@ -83,7 +79,7 @@ export default function CoursePage() {
                     </div>
                     <Link
                         to={`/app/lessons/${courseData.currentLessonId}`}
-                        className="mt-4 md:mt-0 bg-[#2d3748] text-white text-sm px-4 py-2 rounded-md flex items-center"
+                        className="mt-4 md:mt-0 bg-principal text-white text-sm px-4 py-2 rounded-md flex items-center"
                     >
                         <span className="mr-1">+</span> Continuar lección
                     </Link>
@@ -105,7 +101,7 @@ export default function CoursePage() {
                         <TabsTrigger value="lessons">Lecciones</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview">
-                        <div>Overview</div>
+                        <OverviewComp />
                     </TabsContent>
                     <TabsContent value="lessons">
                         {/* Course Sections */}
@@ -156,15 +152,14 @@ const Module = ({ module, instructor }: ModuleProps) => {
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-6 mt-4">
                 {module.lessons.map((lesson) => (
-                    <Link key={lesson.lessonId} to={`/app/lessons/${lesson.lessonId}`} className="flex">   
-                        <img alt="lesson-thumbnail" src={lesson.thumbnailUrl} className="w-48 h-28 flex-shrink-0 rounded-lg object-cover"/>
-                        
-                        <div className="flex-grow flex flex-col justify-between py-2 px-3">
+                    <Link key={lesson.lessonId} to={`/app/lessons/${lesson.lessonId}`} className="flex">
+                        <img alt="lesson-thumbnail" src={lesson.thumbnailUrl} className="w-48 h-28 flex-shrink-0 rounded-lg object-cover" />
+
+                        <div className="flex-grow flex flex-col justify-between py-2 pl-3 pr-12">
                             <div className="flex justify-between items-start mb-1">
                                 <h3 className="font-medium">{lesson.globalIdx}. {lesson.name}</h3>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm text-gray-600">{lesson.duration}</span>
-
                                 </div>
                             </div>
                             <p className="text-sm text-gray-600 mb-1">{lesson.description}</p>
@@ -172,9 +167,9 @@ const Module = ({ module, instructor }: ModuleProps) => {
                         </div>
 
                         <div className="mx-2 flex items-center justify-center">
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${lesson.isWatched ? "bg-[##13A08E]" : "bg-[#CDCDCD]"
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${lesson.isWatched ? "bg-[#13A08E]" : "bg-[#CDCDCD]"
                                 }`}>
-                                <Check className={`w-4 h-4 text-[#DEE7E6]}`} />
+                                <Check color="#FFFFFF" className="w-4 h-4" />
                             </div>
                         </div>
                     </Link>
@@ -184,48 +179,43 @@ const Module = ({ module, instructor }: ModuleProps) => {
     );
 }
 
-
-
-import Hls from "hls.js";
-import UnauthorizedError from "~/utils/unauthorized-error";
-
-function CfHlsPlayer({ src }: Readonly<{ src?: string }>) {
-    const videoRef = useRef<HTMLVideoElement>(null);
-
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-
-        if (!src) return;
-
-        // Native HLS support (Safari, iOS)
-        if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = src;
-        } else if (Hls.isSupported()) {
-            // hls.js fallback
-            const hls = new Hls();
-            hls.loadSource(src);
-            hls.attachMedia(video);
-            return () => {
-                hls.destroy();
-            };
-        } else {
-            console.error("This browser does not support HLS");
-        }
-    }, [src]);
-
+const OverviewComp = () => {
     return (
-        <video
-            ref={videoRef}
-            className="w-full h-full object-cover mx-auto aspect-video rounded-b-[3rem] shadow-lg bg-black"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="none"
-            poster="https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/thumbnails/thumbnail.jpg?time=&height=600"
-        >
-            <p>Your browser doesn’t support HTML5 video.</p>
-        </video>
+        <div className="bg-gray-100 p-6 md:p-10 rounded-lg max-w-4xl mx-auto">
+            <div className="text-center mb-4">
+                <p className="text-gray-700 text-lg">Bienvenido a:</p>
+                <h1 className="text-4xl md:text-5xl font-bold text-[#3d4e81] mt-2">The Art of Reset</h1>
+            </div>
+
+            <div className="mt-12 flex flex-col md:flex-row gap-8 items-center">
+                <div className="md:w-1/3">
+                    <div className="rounded-lg overflow-hidden">
+                        <img
+                            src={pic}
+                            alt="CEO portrait"
+                            width={300}
+                            height={300}
+                            className="w-full h-auto rounded-lg"
+                        />
+                    </div>
+                </div>
+
+                <div className="md:w-2/3 space-y-4">
+                    <p className="text-gray-800 text-lg">
+                        "Con este sistema volverás al mercado con una nueva versión de ti.
+                        <br />
+                        Más claro, y caro 😊. Más posicionado. Más valioso.
+                        <br />
+                        Cada nivel que desbloquees te acerca a un posicionamiento más alto.
+                        <br />
+                        Yo te voy a guiar paso a paso.
+                        <br />
+                        Lo único que te pido: <span className="font-bold">Hazlo en orden. No saltes nada</span>".
+                    </p>
+
+                    <p className="text-gray-500 pt-4">Alan Pinargote | CEO at The Art of Reset</p>
+                </div>
+            </div>
+        </div>
     );
 }

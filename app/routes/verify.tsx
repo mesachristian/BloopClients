@@ -1,16 +1,15 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useLoaderData, useNavigation } from "@remix-run/react";
-import { ArrowLeft } from "lucide-react";
+import { Form, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { useRef, useState } from "react";
 import invariant from "tiny-invariant";
 import { ALAN_COURSE_ID } from "~/api/config";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { authenticator } from "~/lib/auth.server";
 import { commitSession, getSession } from "~/lib/session.server";
-import { createVerificationCode, verifyEmail } from "~/services/user.service";
+import { createVerificationCode } from "~/services/user.service";
+import logo from "~/assets/art-of-reset-logo.png";
 
 export async function loader({ request }: LoaderFunctionArgs) {
     const session = await getSession(request.headers.get('cookie'))
@@ -21,11 +20,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const email = (new URL(request.url)).searchParams.get("email");
     invariant(email, "Missing email param");
 
-    const resEmailVerify = await verifyEmail(email);
-    if (!resEmailVerify.isValid) {
-        throw new Response("Not Found", { status: 404 });
-    }
-
     // Create and send verification code
     await createVerificationCode(email);
 
@@ -33,26 +27,33 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-    let user = await authenticator.authenticate("otp-email", request);
 
-    let session = await getSession(request.headers.get("cookie"));
-    session.set("user", user);
+    try {
+        let user = await authenticator.authenticate("otp-email", request);
 
-    throw redirect(`/app/courses/${ALAN_COURSE_ID}`, {
-        headers: { "Set-Cookie": await commitSession(session) },
-    });
+        let session = await getSession(request.headers.get("cookie"));
+        session.set("user", user);
+
+        return redirect(`/app/courses/${ALAN_COURSE_ID}`, {
+            headers: { "Set-Cookie": await commitSession(session) },
+        });
+
+    }catch {
+        return { error: "Código no válido" }
+    }
 }
+
+const OTP_KEYS = ["otp-1", "otp-12", "otp-3", "otp-4", "otp-5", "otp-6", "otp-7"];
 
 export default function VerifyPage() {
 
     const [otpValues, setOtpValues] = useState(["", "", "", "", "", "", ""])
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
-    //const actionData = useActionData<typeof action>()
+    const actionData = useActionData<typeof action>();
     const navigation = useNavigation()
     const isSubmitting = navigation.state === "submitting"
     const isResending = navigation.formData?.get("_action") === "resend"
 
-    // Email would typically come from a previous step or URL param
     const { email } = useLoaderData<typeof loader>();
 
     const handleOtpChange = (index: number, value: string) => {
@@ -103,21 +104,19 @@ export default function VerifyPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 px-4 py-12">
-            <Card className="w-full max-w-md">
-                <CardHeader className="space-y-1">
-                    <div className="flex items-center">
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 mr-2" onClick={() => window.history.back()}>
-                            <ArrowLeft className="h-4 w-4" />
-                            <span className="sr-only">Back</span>
-                        </Button>
-                        <CardTitle className="text-2xl font-bold tracking-tight">Verify your email</CardTitle>
+        <div className="flex min-h-screen">
+            { /* Left side logo*/}
+            <div className="hidden md:flex md:w-1/2 flex-col items-center bg-principal justify-center text-white">
+                <img alt="verify-logo" className="w-full object-cover object-center" src={logo}/>
+            </div>
+
+            <div className="w-full md:w-1/2 bg-gray-50 flex flex-col items-center justify-center p-6">
+                <div className="w-full max-w-md space-y-8">
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight">Verifica tu correo electrónico</h2>
+                        Nosotros enviamos un código de verificación a <span className="font-medium">{email}</span>
                     </div>
-                    <CardDescription>
-                        We sent a verification code to <span className="font-medium">{email}</span>
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
+
                     <Form method="post" className="space-y-4">
                         <input type="hidden" name="email" value={email} />
 
@@ -126,7 +125,7 @@ export default function VerifyPage() {
                             <div className="flex gap-2">
                                 {otpValues.map((value, index) => (
                                     <Input
-                                        key={`otp-${index}`}
+                                        key={OTP_KEYS[index]}
                                         ref={(el) => (inputRefs.current[index] = el)}
                                         id={`otp-${index}`}
                                         name={`otp-${index}`}
@@ -143,10 +142,8 @@ export default function VerifyPage() {
                                     />
                                 ))}
                             </div>
-
                             {
-                                // TODO: Show errors
-                                //actionData?.error && <p className="text-sm text-red-500 mt-1">{actionData.error}</p>
+                                actionData?.error && <p className="text-sm text-red-500 mt-1">{actionData.error}</p>
                             }
 
                             <p className="text-sm text-gray-500 mt-2">
@@ -155,7 +152,7 @@ export default function VerifyPage() {
                                     type="submit"
                                     name="_action"
                                     value="resend"
-                                    className="text-indigo-600 hover:text-indigo-800 font-medium"
+                                    className="text-principal cursor-pointer font-medium"
                                     disabled={isResending}
                                 >
                                     {isResending ? "Sending..." : "Resend"}
@@ -163,7 +160,6 @@ export default function VerifyPage() {
                             </p>
 
                             {
-                                // TODO
                                 //actionData?.message && <p className="text-sm text-green-600 mt-1">{actionData.message}</p>
                             }
                         </div>
@@ -172,14 +168,14 @@ export default function VerifyPage() {
                             type="submit"
                             name="_action"
                             value="verify"
-                            className="w-full bg-indigo-600 hover:bg-indigo-700"
+                            className="w-full bg-principal hover:brightness-125"
                             disabled={otpValues.some((v) => v === "") || isSubmitting}
                         >
                             {isSubmitting && !isResending ? "Verifying..." : "Verify and Sign In"}
                         </Button>
                     </Form>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }
