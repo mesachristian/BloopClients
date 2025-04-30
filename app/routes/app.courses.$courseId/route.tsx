@@ -48,17 +48,30 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
         if (!courseData) throw new Error("Course not found"); 
 
-        return { courseData };
-    } catch (error: unknown) {
+        return { courseData, error: null };
+    } catch (error: any) {
         if (error instanceof UnauthorizedError)
             return redirect("/logout");
+
+        let e = error as Error;
+        if(e.message == "User dont have access to this course"){
+            return { error : "No tienes acceso a este curso 😢" }
+        }
     }
     return null;
 };
 
 export default function CoursePage() {
 
-    const { courseData } = useLoaderData<{ courseData: CourseData }>();
+    const { courseData, error } = useLoaderData<{ courseData: CourseData, error: string | null }>();
+
+    if(error != null){
+        return(
+            <div className="h-full w-full flex items-center justify-center">
+                <h1 className="text-2xl">{error}</h1>
+            </div>
+        );
+    }
 
     return (
         <div>
