@@ -109,7 +109,7 @@ export default function CoursePage() {
                 <Tabs defaultValue="lessons" className="mb-8 mt-[5rem]">
                     <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
                         <TabsTrigger value="overview">Descripcion</TabsTrigger>
-                        <TabsTrigger value="lessons">Lecciones</TabsTrigger>
+                        <TabsTrigger value="lessons">Blueprints</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview">
                         <OverviewComp />

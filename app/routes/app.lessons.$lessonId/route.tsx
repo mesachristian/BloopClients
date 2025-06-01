@@ -11,6 +11,8 @@ import { fetchWithAuth } from "~/lib/api.server";
 import { LessonData } from "~/models/lessons/lesson-page-dto";
 import UnauthorizedError from "~/utils/unauthorized-error";
 
+import fs from "fs"
+
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     const { lessonId } = params;
     invariant(lessonId, "Missing lesson Id")
@@ -48,6 +50,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 export default function LessonPage() {
     const iFrameRef = useRef<HTMLIFrameElement>(null);
 
+    const notionIframeRef = useRef<HTMLIFrameElement>(null);
+
     const { lessonData } = useLoaderData<{ lessonData: LessonData }>();
 
     const fetcher = useFetcher();
@@ -66,6 +70,41 @@ export default function LessonPage() {
             player.removeEventListener('ended', () => { });
         };
     }, [iFrameRef]);
+
+    // Scroll notion i frame height
+    useEffect(() => {
+        console.log("SCROLLS")
+        const iframe = notionIframeRef.current;
+        if (!iframe) return;
+
+        // A function that measures the iframe’s content and applies that height
+        const resizeIframe = () => {
+            try {
+                const doc = iframe.contentWindow?.document;
+                if (doc) {
+                    // Use whichever is more accurate for your HTML (body vs. documentElement)
+                    const height = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+                    iframe.style.height = height + "px";
+                }
+            } catch (e) {
+                // In theory this shouldn’t run here, because srcDoc is same‐origin. 
+                console.warn("Couldn’t resize iframe:", e);
+            }
+        };
+
+        // When the iframe first finishes loading its srcDoc
+        iframe.addEventListener("load", resizeIframe);
+
+        // Fire once in case the browser already loaded it before we attached the listener
+        // (i.e. React might have written the DOM <iframe> before this effect ran)
+        setTimeout(resizeIframe, 0);
+
+        // If lessonData.longDescription changes, we want to re‐run this effect so height is correct
+        // (React will re‐mount or update the iframe’s srcDoc below.)
+        return () => {
+            iframe.removeEventListener("load", resizeIframe);
+        };
+    }, [lessonData.longDescription]);
 
     return (
         <div className="flex h-[calc(100vh-70px)]">
@@ -89,7 +128,7 @@ export default function LessonPage() {
                                 id="stream-player"
                                 ref={iFrameRef}
                                 title="Lesson Video"
-                                src={`https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/iframe`}
+                                src={lessonData.videoUrl || "https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/iframe"}
                                 className="relative aspect-video mb-6 rounded-xl overflow-hidden border-0 w-full"
                                 allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
                                 allowFullScreen={true}
@@ -109,7 +148,7 @@ export default function LessonPage() {
                             </div>
 
                             <div className="flex items-center mt-6">
-                                <Progress value={50} indicatorColor="" className="h-2" />
+                                <Progress value={100 * lessonData.lessonsWatched / lessonData.lessonsTotal} indicatorColor="" className="h-2" />
 
                                 <div className="flex justify-end min-w-[250px] items-center">
                                     <span className="text-xs text-gray-600 text-center">
@@ -120,57 +159,17 @@ export default function LessonPage() {
                         </div>
 
                         { /* Description */}
-
-                        <div className="space-y-4">
-                            <h2 className="text-xl font-semibold flex items-center gap-2">
-                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs">
-                                    1
-                                </div>
-                                Objetivos
-                            </h2>
-                            <p className="text-muted-foreground">
-                                Este Blueprint está diseñado para ayudar a los estudiantes de RESET a recopilar información clave de los
-                                clientes de sus marcas o proyectos. El propósito es entender cómo se percibe la marca externamente, cuáles son
-                                los valores más apreciados, y qué productos o servicios generan mayor impacto. Esta encuesta facilitará la
-                                extracción de insights profundos que servirán para mejorar la comunicación, optimizar la oferta y fortalecer
-                                la conexión con la audiencia.
-                            </p>
-                        </div>
-
-                        <div className="space-y-4">
-                            <h2 className="text-xl font-semibold flex items-center gap-2">
-                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs">
-                                    2
-                                </div>
-                                Importante
-                            </h2>
-                            <p className="text-muted-foreground">
-                                No todas las marcas estarán dispuestas a realizar la encuesta por sí solas. Siempre ofrece algo a cambio para
-                                incentivar la participación. Esto puede ser un descuento, acceso a contenido exclusivo, un sorteo o cualquier
-                                beneficio atractivo para la audiencia. Recuerda: las mejores respuestas vienen cuando la persona siente que
-                                obtiene valor al participar y cuando la encuesta es breve, clara y fácil de responder.
-                            </p>
-                        </div>
-
-                        <div className="space-y-4">
-                            <h2 className="text-xl font-semibold flex items-center gap-2">
-                                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs">
-                                    3
-                                </div>
-                                Estructura de la Encuesta
-                            </h2>
-                            <p className="text-muted-foreground">
-                                La encuesta está dividida en 5 secciones para obtener una visión completa:
-                            </p>
-                            <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-                                <li>Conexión emocional con la marca</li>
-                                <li>Percepción de los valores y personalidad de la marca</li>
-                                <li>Análisis de productos y servicios</li>
-                                <li>Experiencia de usuario y atención al cliente</li>
-                                <li>Expectativas y recomendaciones</li>
-                            </ol>
-                            <p className="text-muted-foreground">Cada sección incluye preguntas cerradas, abiertas y de valoración.</p>
-                        </div>
+                        <iframe
+                            ref={notionIframeRef}
+                            sandbox="allow-same-origin"
+                            srcDoc={lessonData.longDescription}
+                            scrolling="no"
+                            style={{
+                                width: "100%",
+                                minHeight: "100%"
+                            }}
+                            title="Notion Preview"
+                        />
                     </div>
                 </div>
             </div>

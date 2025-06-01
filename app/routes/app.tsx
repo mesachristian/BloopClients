@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Link, Outlet, useNavigate } from "@remix-run/react";
-import { ArrowLeft, Bell, LogOut, Settings, User } from "lucide-react";
+import { ArrowLeft, Bell, Home, LogOut, Settings, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
@@ -27,6 +27,11 @@ export default function App() {
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Atrás
                 </Button>
+
+                <Link to={"/"} className="text-principal">
+                    <Home className="w-6 h-6" />
+                </Link>
+                
                 <div className="flex items-center gap-4 cursor-pointer">
                     <Button variant="ghost" size="icon" className="relative">
                         <Bell className="w-5 h-5" />

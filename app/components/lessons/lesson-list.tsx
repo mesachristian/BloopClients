@@ -49,9 +49,8 @@ const LessonList = ({ currentLessonId, progress, modules }: LessonListProps) => 
 
                                                     <span className="text-sm flex-1 truncate">{lesson.name}</span>
 
-                                                    <span className="text-xs text-gray-400">{'20 min'}</span>
+                                                    <span className="text-xs text-gray-400">{lesson.duration}</span>
                                                 </div>
-                                                <span className="text-sm text-muted-foreground">{lesson.duration}</span>
                                             </Link>
                                         </li>
                                     ))}

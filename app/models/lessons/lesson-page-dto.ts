@@ -16,7 +16,7 @@ export interface LessonData {
     courseName: string;
     name: string;
     moduleName: string;
-    videoUrl: string;
+    videoUrl?: string;
     nextLessonId: string;
     instructorName: string;
     lessonsWatched: number;
