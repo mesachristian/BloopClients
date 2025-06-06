@@ -106,8 +106,8 @@ export default function VerifyPage() {
     return (
         <div className="flex min-h-screen">
             { /* Left side logo*/}
-            <div className="hidden md:flex md:w-1/2 flex-col items-center bg-principal justify-center text-white">
-                <img alt="verify-logo" className="w-full object-cover object-center" src={logo}/>
+            <div className="hidden md:flex md:w-1/2 bg-principal box-content">
+                <img alt="verify-logo" src={logo} className="w-full h-full object-cover" />
             </div>
 
             <div className="w-full md:w-1/2 bg-gray-50 flex flex-col items-center justify-center p-6">

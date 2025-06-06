@@ -36,7 +36,11 @@ interface CourseData {
     watchedLessons: string;
     modules: ModuleData[];
     percentage?: number;
+    thumbnailUrl?: string;
 }
+
+const DEFAULT_BANNER = "https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/manifest/video.m3u8";
+const DEFAULT_POSTER = "https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/thumbnails/thumbnail.jpg?time=&height=600";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const { courseId } = params;
@@ -77,8 +81,8 @@ export default function CoursePage() {
         <div>
             <div className="mb-6 h-[80vh] rounded-b-3xl object-cover">
                 <CfHlsPlayer
-                    src={"https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/manifest/video.m3u8"}
-                    poster="https://customer-wv32dkya9y6lk9k0.cloudflarestream.com/13c9b1710ee9494c9a67d736a4703215/thumbnails/thumbnail.jpg?time=&height=600" />
+                    src={courseData.bannerUrl || DEFAULT_BANNER}
+                    poster={courseData.thumbnailUrl || DEFAULT_POSTER} />
             </div>
 
             <main className="max-w-4xl mx-auto p-4">

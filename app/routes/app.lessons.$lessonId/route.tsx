@@ -178,7 +178,7 @@ export default function LessonPage() {
             <div className="w-[400px] border-l h-[calc(100vh-70px)] flex flex-col">
                 <Tabs defaultValue="lessons" className="flex-1 flex flex-col h-full">
                     <TabsList className="grid grid-cols-2 mx-2 mt-4">
-                        <TabsTrigger value="lessons">Lessons</TabsTrigger>
+                        <TabsTrigger value="lessons">Blueprints</TabsTrigger>
                         <TabsTrigger value="feed">Feed</TabsTrigger>
                     </TabsList>
                     <TabsContent value="lessons" className="flex-1 flex flex-col overflow-hidden">
@@ -186,9 +186,9 @@ export default function LessonPage() {
                     </TabsContent>
                     <TabsContent value="feed" className="p-4 flex-1 overflow-auto">
                         <div className="space-y-4">
-                            <h3 className="font-medium">Recent Updates</h3>
+                            <h3 className="font-medium">Actualizaciones recientes</h3>
                             <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">No recent updates</p>
+                                <p className="text-sm text-muted-foreground">No hay actualizaciones recientes</p>
                             </div>
                         </div>
                     </TabsContent>
