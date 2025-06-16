@@ -10,6 +10,8 @@ import { Textarea } from "~/components/ui/textarea";
 import { useToast } from "~/hooks/use-toast";
 import { fetchWithAuth } from "~/lib/api.server";
 import { cn } from "~/lib/utils";
+import defaultProfileImg from "~/assets/default_profile_img.png";
+import defaultCoverImg from "~/assets/default_cover_img.png";
 
 interface ProfileData {
   coverImageUrl?: string;
@@ -39,50 +41,86 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
 
-  const profileImageFile = formData.get("profileImageFile") as string;
-  const profileImage = formData.get("profileImage") as string;
+  // 1) dump formData into a plain object
+  const data = Object.fromEntries(formData.entries()) as Record<
+    | "name"
+    | "location"
+    | "aboutMe"
+    | "phoneNumber"
+    | "email"
+    | "instagram"
+    | "profileImage"
+    | "coverImage"
+    | "profileImageFile"
+    | "coverImageFile",
+    string | File
+  >;
 
-  if(profileImageFile){
-    const blobQuery  = await fetch(profileImage);
-    const blob = await blobQuery.blob();
-    
-    let formData = new FormData();
-    formData.append("file", blob, profileImageFile);
-    
-    let res = (await fetchWithAuth(
+  // 2) pick off exactly the two Files and two existing URLs
+  const {
+    profileImageFile: rawProfileFile,
+    coverImageFile: rawCoverFile,
+    profileImage: existingProfileUrl,
+    coverImage: existingCoverUrl,
+    ...textFields
+  } = data;
+
+  // 3) helper: upload & return the new URL
+  async function uploadFile(file: File): Promise<string> {
+    const fd = new FormData();
+    fd.append("file", file, file.name);
+    // fetchWithAuth here returns the parsed JSON, not a Response
+    const resp = (await fetchWithAuth(
       `${API_BASE_URL}/resources/upload-image`,
       request,
-      {
-        method: 'POST',
-        body: formData
-      }
-    ));
+      { method: "POST", body: fd }
+    )) as { url: string };
+    return resp.url;
   }
-  
-  // Build the updated profile data from the form values.
-  let updatedProfile: ProfileData = {
-    name: formData.get("name") as string,
-    location: formData.get("location") as string,
-    aboutMe: formData.get("aboutMe") as string,
-    phoneNumber: formData.get("phoneNumber") as string,
-    email: formData.get("email") as string,
-    instagram: formData.get("instagram") as string,
-    profileImageUrl: formData.get("profileImage") as string,
-    coverImageUrl: formData.get("coverImage") as string,
-    profileImageFile: null,
-    coverImageFile: null
+
+  // 4) decide on final URLs
+  const profileImageUrl =
+    rawProfileFile instanceof File && rawProfileFile.size > 0
+      ? await uploadFile(rawProfileFile)
+      : (existingProfileUrl as string);
+
+  const coverImageUrl =
+    rawCoverFile instanceof File && rawCoverFile.size > 0
+      ? await uploadFile(rawCoverFile)
+      : (existingCoverUrl as string);
+
+  // 5) rebuild the payload
+  const updatedPayload: ProfileData = {
+    // spread your text fields (name, location, aboutMe, etc)
+    ...(textFields as Pick<
+      ProfileData,
+      | "name"
+      | "location"
+      | "aboutMe"
+      | "phoneNumber"
+      | "email"
+      | "instagram"
+    >),
+    profileImageUrl,
+    coverImageUrl,
+    profileImageFile:
+      rawProfileFile instanceof File ? rawProfileFile : null,
+    coverImageFile:
+      rawCoverFile instanceof File ? rawCoverFile : null,
   };
 
-  updatedProfile = (await fetchWithAuth(
+  // 6) send the update
+  const result = (await fetchWithAuth(
     `${API_BASE_URL}/users/me`,
     request,
     {
-      method: 'POST',
-      body: JSON.stringify(updatedProfile)
+      method: "POST",
+      body: JSON.stringify(updatedPayload),
+      headers: { "Content-Type": "application/json" },
     }
   )) as ProfileData;
 
-  return updatedProfile;
+  return result;
 };
 
 // -- Component --
@@ -150,13 +188,13 @@ export default function ProfileMePage() {
 
   return (
     <div className="px-10 py-4 flex items-center flex-col">
-      <Form method="post" className="w-full flex flex-col items-center">
+      <Form method="post" className="w-full flex flex-col items-center"encType="multipart/form-data" >
         {/* Profile Images */}
         <div className="relative w-full max-w-6xl">
           <img
             alt="profile-cover"
             className="w-full h-[200px] object-cover rounded-xl"
-            src={tempData.coverImageUrl}
+            src={tempData.coverImageUrl || defaultCoverImg}
           />
           {isEditing && (
             <label className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer transition-opacity hover:bg-opacity-70">
@@ -175,7 +213,7 @@ export default function ProfileMePage() {
           <img
             alt="profile-pic"
             className="absolute left-8 top-[100px] w-[200px] h-[200px] rounded-full object-cover border-[4px] border-solid border-white"
-            src={tempData.profileImageUrl}
+            src={tempData.profileImageUrl|| defaultProfileImg}
           />
           {isEditing && (
             <label className="absolute left-8 top-[100px] w-[200px] h-[200px] rounded-full flex items-center justify-center bg-black bg-opacity-50 cursor-pointer transition-opacity hover:bg-opacity-70">
@@ -202,7 +240,7 @@ export default function ProfileMePage() {
                   <div className="mb-4">
                     <Input
                       name="name"
-                      placeholder="Nombre completo"
+                      placeholder="Añade tu nombre"
                       value={tempData.name}
                       onChange={handleChange}
                       className="text-2xl font-bold"
@@ -217,6 +255,7 @@ export default function ProfileMePage() {
                         value={tempData.location}
                         onChange={handleChange}
                         className="w-32"
+                        placeholder="Añade tu ubicación"
                       />
                     </div>
                   </div>
@@ -243,6 +282,7 @@ export default function ProfileMePage() {
                   value={tempData.aboutMe}
                   onChange={handleChange}
                   rows={3}
+                  placeholder="Cuéntanos algo sobre ti…"
                 />
               </div>
 
@@ -257,6 +297,7 @@ export default function ProfileMePage() {
                     value={tempData.phoneNumber}
                     onChange={handleChange}
                     className="flex-1"
+                    placeholder="Añade tu teléfono"
                   />
                 </div>
 
@@ -268,6 +309,7 @@ export default function ProfileMePage() {
                     onChange={handleChange}
                     className="flex-1"
                     type="email"
+                    placeholder="Añade tu correo"
                   />
                 </div>
 
@@ -278,6 +320,7 @@ export default function ProfileMePage() {
                     value={tempData.instagram}
                     onChange={handleChange}
                     className="flex-1"
+                    placeholder="Añade tu instagram"
                   />
                 </div>
               </div>
@@ -293,13 +336,13 @@ export default function ProfileMePage() {
                 <div>
                   {/* Name */}
                   <div className="mb-4">
-                    <h1 className="text-2xl font-bold">{tempData.name}</h1>
+                    <h1 className="text-2xl font-bold">{tempData.name||"Añade tu nombre"}</h1>
                   </div>
                   {/* Location */}
                   <div className="flex items-center gap-2 mb-6 text-gray-600">
                     <Flag className="h-4 w-4" />
                     <span>
-                      {tempData.location}
+                      {tempData.location||"Añade tu ubicación"}
                     </span>
                   </div>
                 </div>
@@ -316,7 +359,7 @@ export default function ProfileMePage() {
               <div className="mb-6">
                 <h2 className="font-semibold mb-2">Sobre mí:</h2>
                 <div className="space-y-4 text-gray-700">
-                  <p>{tempData.aboutMe}</p>
+                  <p>{tempData.aboutMe||"Cuéntanos algo sobre ti…"}</p>
                 </div>
               </div>
 
@@ -326,15 +369,15 @@ export default function ProfileMePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 divide-x-2 gap-4">
                 <div className={cn("flex items-center gap-2 p-3")}>
                   <Phone className="h-5 w-5 text-gray-500" />
-                  <span>{tempData.phoneNumber}</span>
+                  <span>{tempData.phoneNumber||"Añade tu teléfono"}</span>
                 </div>
                 <div className={cn("flex items-center gap-2 p-3")}>
                   <Mail className="h-5 w-5 text-gray-500" />
-                  <span>{tempData.email}</span>
+                  <span>{tempData.email||"Añade tu email"}</span>
                 </div>
                 <div className={cn("flex items-center gap-2 p-3")}>
                   <Instagram className="h-5 w-5 text-gray-500" />
-                  <span>{tempData.instagram}</span>
+                  <span>{tempData.instagram||"Añade tu instagram"}</span>
                 </div>
               </div>
             </div>
