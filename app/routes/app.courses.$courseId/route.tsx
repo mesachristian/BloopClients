@@ -50,7 +50,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     try {
         const courseData = (await fetchWithAuth(`${API_BASE_URL}/courses/user/${courseId}`, request)) as CourseData;
 
-        if (!courseData) throw new Error("Course not found"); 
+        if (!courseData) throw new Error("Course not found");
 
         return { courseData, error: null };
     } catch (error: any) {
@@ -58,8 +58,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
             return redirect("/logout");
 
         let e = error as Error;
-        if(e.message == "User dont have access to this course"){
-            return { error : "No tienes acceso a este curso 😢" }
+        if (e.message == "User dont have access to this course") {
+            return { error: "No tienes acceso a este curso 😢" }
         }
     }
     return null;
@@ -69,8 +69,8 @@ export default function CoursePage() {
 
     const { courseData, error } = useLoaderData<{ courseData: CourseData, error: string | null }>();
 
-    if(error != null){
-        return(
+    if (error != null) {
+        return (
             <div className="h-full w-full flex items-center justify-center">
                 <h1 className="text-2xl">{error}</h1>
             </div>
@@ -217,18 +217,20 @@ const OverviewComp = () => {
 
                 <div className="md:w-2/3 space-y-4">
                     <p className="text-gray-800 text-lg">
-                        "Con este sistema volverás al mercado con una nueva versión de ti.
-                        <br />
-                        Más claro, y caro 😊. Más posicionado. Más valioso.
-                        <br />
-                        Cada nivel que desbloquees te acerca a un posicionamiento más alto.
-                        <br />
-                        Yo te voy a guiar paso a paso.
-                        <br />
-                        Lo único que te pido: <span className="font-bold">Hazlo en orden. No saltes nada</span>".
+                        Aquí no vas a aprender.
+                        Vas a <b>volver al mercado</b> con una versión más nítida, más estratégica… y mucho más <b>valiosa de ti mismo</b>.
+                        <br/><br/>
+                        Cada Blueprint que desbloquees va a <b>elevar tu percepción.</b>
+                        Y acercarte a un posicionamiento que no se discute.
+                        Ni se explica.
+                        <b>Se impone.</b>
+                        <br/><br/>
+                        <b>Hazlo en orden.</b>
+                        No improvises.
+                        Y ejecuta con intención.
                     </p>
 
-                    <p className="text-gray-500 pt-4">Alan Pinargote | CEO at The Art of Reset</p>
+                    <p className="text-gray-500 pt-4">Alan Pinargote | Autor de <i>The Art of Reset</i></p>
                 </div>
             </div>
         </div>

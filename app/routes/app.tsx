@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { getSession } from "~/lib/session.server";
+import defaultProfileImg from "~/assets/default_profile_img.png";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get('cookie'));
@@ -41,7 +42,7 @@ export default function App() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Avatar>
-                                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                <AvatarImage src={defaultProfileImg} alt="@shadcn" />
                                 <AvatarFallback>U</AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
