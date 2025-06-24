@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import CfHlsPlayer from "~/components/ui/video-player";
 import { fetchWithAuth } from "~/lib/api.server";
 import UnauthorizedError from "~/utils/unauthorized-error";
-import pic from "~/assets/foto-alan.png";
+import pic from "~/assets/alan-pic.jpg";
 
 interface LessonData {
     lessonId: string;
