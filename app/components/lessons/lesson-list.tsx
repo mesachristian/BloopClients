@@ -30,7 +30,7 @@ const LessonList = ({ currentLessonId, progress, modules }: LessonListProps) => 
 
                                 <div className="flex justify-between items-center px-4 py-4 border-b-[1px] border-gray-200 mb-4">
                                     <span className="text-sm font-semibold">{module.name}</span>
-                                    <span className="text-sm">{'1 hora'}</span>
+                                    { /* <span className="text-sm">{'1 hora'}</span> */ }
                                 </div>
 
                                 <ul className="space-y-6">

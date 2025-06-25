@@ -96,7 +96,7 @@ export default function CoursePage() {
                         to={`/app/lessons/${courseData.currentLessonId}`}
                         className="mt-4 md:mt-0 bg-principal text-white text-sm px-4 py-2 rounded-md flex items-center"
                     >
-                        <span className="mr-1">+</span> Continuar lección
+                        <span className="mr-1">+</span> Continuar blueprint
                     </Link>
                 </div>
 
@@ -226,7 +226,9 @@ const OverviewComp = () => {
                         <b>Se impone.</b>
                         <br/><br/>
                         <b>Hazlo en orden.</b>
+                        <br/><br/>
                         No improvises.
+                        <br/><br/>
                         Y ejecuta con intención.
                     </p>
 

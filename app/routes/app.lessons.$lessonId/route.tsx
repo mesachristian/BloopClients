@@ -1,17 +1,16 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { BookOpen } from "lucide-react";
+import { useFetcher, useLoaderData, useNavigate } from "@remix-run/react";
+import { BookOpen, Hammer } from "lucide-react";
 import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { API_BASE_URL } from "~/api/config";
 import LessonList from "~/components/lessons/lesson-list";
+import { Button } from "~/components/ui/button";
 import { Progress } from "~/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { fetchWithAuth } from "~/lib/api.server";
 import { LessonData } from "~/models/lessons/lesson-page-dto";
 import UnauthorizedError from "~/utils/unauthorized-error";
-
-import fs from "fs"
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     const { lessonId } = params;
@@ -55,6 +54,8 @@ export default function LessonPage() {
     const { lessonData } = useLoaderData<{ lessonData: LessonData }>();
 
     const fetcher = useFetcher();
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const player = (window as any).Stream(document.getElementById('stream-player'));
@@ -106,6 +107,17 @@ export default function LessonPage() {
         };
     }, [lessonData.longDescription]);
 
+    const onContinue = () => {
+        if (!lessonData.isWatched){
+            fetcher.submit(
+                    { lessonId: lessonData.id },
+                    { method: 'post' }
+                );
+        }
+        
+        navigate(`/app/lessons/${lessonData.nextLessonId}`);
+    }
+
     return (
         <div className="flex h-[calc(100vh-70px)]">
             { /* Lesson Content */}
@@ -118,8 +130,8 @@ export default function LessonPage() {
                         </div>
 
                         <div>
-                            <div className="text-sm text-muted-foreground">Módulo de Bienvenida</div>
-                            <h1 className="text-2xl font-bold mt-0">Bienvenido a The Art Of Reset</h1>
+                            <div className="text-sm text-muted-foreground">Módulo {lessonData.moduleName}</div>
+                            { /*<h1 className="text-2xl font-bold mt-0">{lessonData.moduleName}</h1>*/ }
                         </div>
 
                         { /* Video Container */}
@@ -139,12 +151,12 @@ export default function LessonPage() {
                                     <h1 className="text-lg font-bold">{lessonData.name}</h1>
                                     <p className="text-sm text-gray-600">{lessonData.instructorName}</p>
                                 </div>
-                                <Link
-                                    to={`/app/lessons/${lessonData.nextLessonId}`}
+                                <Button
+                                    onClick={onContinue}
                                     className="mt-4 md:mt-0 bg-[#2d3748] text-white text-sm px-4 py-2 rounded-md flex items-center"
                                 >
-                                    <span className="mr-1">+</span> Continuar lección
-                                </Link>
+                                    <span className="mr-1">+</span> Continuar blueprint
+                                </Button>
                             </div>
 
                             <div className="flex items-center mt-6">
@@ -185,11 +197,9 @@ export default function LessonPage() {
                         <LessonList currentLessonId={lessonData.id} modules={lessonData.modules} progress={lessonData.progress} />
                     </TabsContent>
                     <TabsContent value="feed" className="p-4 flex-1 overflow-auto">
-                        <div className="space-y-4">
-                            <h3 className="font-medium">Actualizaciones recientes</h3>
-                            <div className="space-y-2">
-                                <p className="text-sm text-muted-foreground">No hay actualizaciones recientes</p>
-                            </div>
+                        <div className="flex items-center text-2xl">
+                            <Hammer />
+                            <h3 className="ml-3 mt-0 font-medium">Próximamente ...</h3>
                         </div>
                     </TabsContent>
                 </Tabs>
